@@ -7,12 +7,13 @@ use Illuminate\Http\Request;
 
 class CheckoutController extends BaseCartController
 {
+    /**
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\Illuminate\View\View
+     */
     public function index()
     {
-        if (!session()->has(self::CART_KEY))
-            return redirect('/cart');
-
-        $cart = Cart::findPending(session(self::CART_KEY));
+        /** @var Cart $cart */
+        $cart = Cart::findPending(session(self::CART_KEY, 0));
         if (empty($cart))
             return redirect('/cart');
 

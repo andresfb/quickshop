@@ -18,9 +18,7 @@ class CartController extends BaseCartController
     public function index()
     {
         /** @var Cart $cart */
-        $cart = null;
-        if (session()->has(self::CART_KEY))
-            $cart = Cart::findPending(session(self::CART_KEY));
+        $cart = Cart::findPending(session(self::CART_KEY, 0));
 
         return view('cart.view', compact('cart'));
     }
@@ -39,16 +37,13 @@ class CartController extends BaseCartController
             return redirect('/');
         }
 
-        $cartid = session()->has(self::CART_KEY) ? session(self::CART_KEY) : 0;
-
         /** @var Cart $cart */
-        $cart = Cart::findPendingOrNew($cartid);
+        $cart = Cart::findPendingOrNew(session(self::CART_KEY, 0));
 
-        session()->put(self::CART_KEY, $cart->id);
+        session([self::CART_KEY => $cart->id]);
 
         /** @var CartItem $cartitem */
-        $cartitem = $cart->cart_items()
-            ->firstOrCreate(['product_id' => $product->id]);
+        $cartitem = $cart->cart_items()->firstOrCreate(['product_id' => $product->id]);
         $cartitem->quantity += 1;
         $cartitem->price = $product->price;
         $cartitem->save();
